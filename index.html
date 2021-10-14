@@ -32,7 +32,7 @@
       <canvas id="canvas" width="800" height="600"></canvas>
       <span id="score">0000</span>
     </div>
-    <script src="lib/coquette-min.js"></script>
+    <script src="lib/coquette.js"></script>
     <script>
       const WIDTH = 800;
       const HEIGHT = 600;
@@ -42,7 +42,7 @@
       const DIRECTIONS = { right: 0, left: 1 };
       const BASE_SPEED = 0.6;
       const Y_INC = 10;
-      const SPEED_MULT = 0.015;
+      const SPEED_MULT = 0.025;
       const MAX_ENEMY_SIZE = 20;
       const ENEMY_SIZE_RATIO = 0.5;
 
@@ -81,8 +81,8 @@
         // enemy array
         let currentEnemyArray = this.c.entities.create(EnemyArray, {
           color: "#07f",
-          rows: 5,
-          cols: 5,
+          rows: enemyRows,
+          cols: enemyCols,
         });
 
 
@@ -122,7 +122,7 @@
         this.c = game.c;
 
         this.speed = BASE_SPEED;
-        this.size = { x: WIDTH * 0.666, y: HEIGHT * 0.333 };
+        this.size = { x: WIDTH * 0.75, y: HEIGHT * 0.4 };
         this.center = { x: WIDTH / 2, y: 50 + this.size.y / 2 };
         this.direction = DIRECTIONS.right;
         this.killed = 0;
@@ -315,7 +315,7 @@
             this.c.entities.create(Bullet, {
               center: {
                 x: this.center.x,
-                y: this.center.y - this.size.y / 2 - 2,
+                y: this.center.y - this.size.y,
               },
               color: settings.color,
             });
