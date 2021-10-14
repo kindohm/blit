@@ -9,13 +9,18 @@
         background-color: #000;
         padding: 20px;
       }
+      #container{
+        position: relative;
+        display: inline-block;
+      }
       #canvas {
+        position: absolute;
         border: solid 2px #333;
       }
       #score {
-        position: fixed;
-        left: 35;
-        top: 120;
+        position: absolute;
+        left: 0px;
+        top: 120px;
         font-size: 330px;
         font-family: monospace;
         color: #0077ff33;
@@ -23,8 +28,8 @@
     </style>
   </head>
   <body>
-    <div>
-      <canvas id="canvas"></canvas>
+    <div id="container">
+      <canvas id="canvas" width="800" height="600"></canvas>
       <span id="score">0000</span>
     </div>
     <script src="lib/coquette-min.js"></script>
