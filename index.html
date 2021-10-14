@@ -9,7 +9,7 @@
         background-color: #000;
         padding: 20px;
       }
-      #container{
+      #container {
         position: relative;
         display: inline-block;
       }
@@ -85,25 +85,24 @@
           cols: 5,
         });
 
-        this.update = function () {
-          const entities = this.c.entities.all();
-          const player = entities.find((e) => e instanceof Player);
-          const ea = entities.find((e) => e instanceof EnemyArray);
 
-          if (player.dead || ea.bottomedOut) {
+        let entities, player, enemyArray, bullets;
+
+        this.update = function () {
+          entities = this.c.entities.all();
+          player = entities.find((e) => e instanceof Player);
+          enemyArray = entities.find((e) => e instanceof EnemyArray);
+
+          if (player.dead || enemyArray.bottomedOut) {
             this.gameOver = true;
             return;
           }
 
-          entities.forEach((entity) => {
-            if (entity.dead) {
-              this.c.entities.destroy(entity);
-            }
-          });
+          if (enemyArray.cleared) {
+            
+            this.c.entities.destroy(enemyArray);
 
-          const enemyArray = this.c.entities.all(EnemyArray);
-          if (enemyArray.length === 0) {
-            const bullets = this.c.entities.all(Bullet);
+            bullets = this.c.entities.all(Bullet);
             bullets.forEach((b) => this.c.entities.destroy(b));
 
             enemyRows++;
@@ -134,6 +133,8 @@
 
         const colSize = this.size.x / this.cols;
         const rowSize = this.size.y / this.rows;
+        const sizeX = Math.min(colSize * 0.8, MAX_ENEMY_SIZE);
+        const sizeY = Math.min(rowSize * 0.8, MAX_ENEMY_SIZE);
 
         this.totalEnemies = this.rows * this.cols;
 
@@ -145,45 +146,54 @@
               col: c,
               center: { x: 0, y: 0 },
               size: {
-                x: Math.min(colSize * 0.8, MAX_ENEMY_SIZE),
-                y: Math.min(rowSize * 0.8, MAX_ENEMY_SIZE),
+                x: sizeX,
+                y: sizeY,
               },
             });
           }
         }
+
+        let enemies,
+          leftMostEnemy,
+          rightMostEnemy,
+          bottomMostEnemy,
+          rightEnemyEdge,
+          leftEnemyEdge,
+          bottomEnemyEdge,
+          topEdge,
+          leftEdge,
+          killed;
 
         this.update = function () {
           if (game.gameOver) {
             return;
           }
 
-          const enemies = this.c.entities.all(Enemy);
+          enemies = this.c.entities.all(Enemy);
 
           this.killed = this.totalEnemies - enemies.length;
 
           if (enemies.length === 0) {
-            this.dead = true;
+            this.cleared = true;
             return;
           }
 
-          const leftMostEnemy = enemies.sort((a, b) =>
+          leftMostEnemy = enemies.sort((a, b) =>
             a.center.x < b.center.x ? -1 : 1
           )[0];
-          const rightMostEnemy = enemies.sort((a, b) =>
+          rightMostEnemy = enemies.sort((a, b) =>
             a.center.x > b.center.x ? -1 : 1
           )[0];
-          const bottomMostEnemy = enemies.sort((a, b) =>
+          bottomMostEnemy = enemies.sort((a, b) =>
             a.center.y > b.center.y ? -1 : 1
           )[0];
 
-          const rightEnemyEdge =
-            rightMostEnemy.center.x + rightMostEnemy.size.x / 2; // this.center.x + this.size.x/2;
-          const leftEnemyEdge =
-            leftMostEnemy.center.x - leftMostEnemy.size.x / 2; // this.center.x - this.size.x/2;
-          const bottomEnemyEdge =
+          rightEnemyEdge = rightMostEnemy.center.x + rightMostEnemy.size.x / 2; // this.center.x + this.size.x/2;
+          leftEnemyEdge = leftMostEnemy.center.x - leftMostEnemy.size.x / 2; // this.center.x - this.size.x/2;
+          bottomEnemyEdge =
             bottomMostEnemy.center.y + bottomMostEnemy.size.y / 2; // this.center.y + this.size.y / 2;
-          const topEdge = this.center.y - this.size.y / 2;
-          const leftEdge = this.center.x - this.size.x / 2;
+          topEdge = this.center.y - this.size.y / 2;
+          leftEdge = this.center.x - this.size.x / 2;
 
           if (bottomEnemyEdge >= HEIGHT) {
             this.bottomedOut = true;
@@ -198,18 +208,15 @@
             this.center.y += Y_INC;
           }
 
-          const killed = this.totalEnemies - enemies.length;
+          killed = this.totalEnemies - enemies.length;
           this.speed = BASE_SPEED + killed * SPEED_MULT;
 
           this.center.x +=
             this.direction === DIRECTIONS.right ? this.speed : -this.speed;
 
           enemies.forEach((enemy) => {
-            const { row, col } = enemy;
-            const x = colSize * col + colSize / 2 + leftEdge;
-            const y = rowSize * row + rowSize / 2 + topEdge;
-            enemy.center.x = x;
-            enemy.center.y = y;
+            enemy.center.x = colSize * enemy.col + colSize / 2 + leftEdge;
+            enemy.center.y = rowSize * enemy.row + rowSize / 2 + topEdge;
           });
         };
       };
@@ -232,10 +239,10 @@
         };
 
         this.collision = function (other) {
-          if (!this.dead && other instanceof Bullet) {
+          if (other instanceof Bullet) {
             hitEvent.hit();
-            other.dead = true;
-            this.dead = true;
+            this.c.entities.destroy(this);
+            this.c.entities.destroy(other);
           }
         };
       };
@@ -256,7 +263,7 @@
 
           this.center.y += this.vector.y;
           if (this.center.y < 0) {
-            this.dead = true;
+            this.c.entities.destroy(this);
           }
         };
 
