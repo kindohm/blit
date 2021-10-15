@@ -32,7 +32,7 @@
       <canvas id="canvas" width="800" height="600"></canvas>
       <span id="score">0000</span>
     </div>
-    <script src="lib/coquette.js"></script>
+    <script src="lib/coquette-min.js"></script>
     <script>
       const WIDTH = 800;
       const HEIGHT = 600;
@@ -43,7 +43,6 @@
       const BASE_SPEED = 0.6;
       const TOP_SPEED = 4;
       const Y_INC = 10;
-      // const ROUND_SPEED_MULT = 1.15;
       const MAX_ENEMY_SIZE = 20;
       const ENEMY_SIZE_RATIO = 0.5;
       const ENEMY_ROWS = 6;
@@ -335,13 +334,19 @@
 
           this.bulletTicks++;
 
-          if (this.c.inputter.isDown(this.c.inputter.LEFT_ARROW)) {
+          if (
+            this.c.inputter.isDown(this.c.inputter.LEFT_ARROW) ||
+            this.c.inputter.isDown(this.c.inputter.A)
+          ) {
             this.center.x = Math.max(
               this.center.x - PLAYER_MOVE_SPEED,
               this.size.x / 2
             );
           }
-          if (this.c.inputter.isDown(this.c.inputter.RIGHT_ARROW)) {
+          if (
+            this.c.inputter.isDown(this.c.inputter.RIGHT_ARROW) ||
+            this.c.inputter.isDown(this.c.inputter.D)
+          ) {
             this.center.x = Math.min(
               this.center.x + PLAYER_MOVE_SPEED,
               WIDTH - this.size.x / 2
