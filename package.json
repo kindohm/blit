@@ -2,5 +2,11 @@
   "name": "blit",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^13.0.2"
+  },
+  "scripts":{
+    "start": "yarn http-server"
+  }
 }

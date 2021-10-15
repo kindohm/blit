@@ -1,9 +1,9 @@
 (function (exports) {
   const EnemyArray = function (game, settings) {
     this.c = game.c;
-
+    this.group = GROUPS.INVISIBLE;
     this.size = { x: WIDTH * 0.75, y: HEIGHT * 0.4 };
-    this.center = { x: WIDTH / 2, y: 50 + this.size.y / 2 };
+    this.center = { x: WIDTH / 2, y: 10 + this.size.y / 2 };
     this.direction = DIRECTIONS.right;
 
     for (let i in settings) {

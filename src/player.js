@@ -65,7 +65,7 @@
     };
 
     this.collision = function (other) {
-      if (other.group !== this.group) {
+      if (other.group !== this.group && other.group !== GROUPS.INVISIBLE) {
         this.dead = true;
       }
     };

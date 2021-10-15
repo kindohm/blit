@@ -12,7 +12,7 @@
   exports.ENEMY_SIZE_RATIO = 0.5;
   exports.ENEMY_ROWS = 6;
   exports.ENEMY_COLS = 10;
-  exports.GROUPS = { ENEMY: 1, PLAYER: 2 };
+  exports.GROUPS = { INVISIBLE: 0, ENEMY: 1, PLAYER: 2 };
 
   // exports.Game = Game;
 })(this);

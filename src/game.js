@@ -17,7 +17,7 @@
 
     // player
     this.c.entities.create(Player, {
-      center: { x: WIDTH / 2, y: HEIGHT - 50 },
+      center: { x: WIDTH / 2, y: HEIGHT - 20 },
       color: "#07f",
     });
 
