@@ -51,6 +51,7 @@
         });
 
         this.bulletTicks = 0;
+        events.bullet();
       }
     };
 

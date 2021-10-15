@@ -29,7 +29,7 @@
             );
     }
 
-    hitEvent.addEventListener("hit", () => handleHit(that));
+    events.addEventListener("hit", () => handleHit(that));
 
     const colSize = this.size.x / this.cols;
     const rowSize = this.size.y / this.rows;

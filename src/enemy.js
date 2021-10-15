@@ -32,7 +32,7 @@
 
     this.collision = function (other) {
       if (other.group !== this.group && other instanceof Bullet) {
-        hitEvent.hit();
+        events.hit();
         this.c.entities.destroy(this);
         this.c.entities.destroy(other);
       }

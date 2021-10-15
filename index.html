@@ -17,14 +17,26 @@
         position: absolute;
         border: solid 2px #333;
       }
-      #score {
+      #scoreboard{
         position: absolute;
-        left: 0px;
-        top: 120px;
-        font-size: 330px;
+        left: 10px;
+        top: 10px;
+        font-size: 16px;
         font-family: monospace;
-        color: #0077ff33;
+        color: #0077ff99;
+        display: block;
       }
+      #scoreboard div {
+        position: fixed;
+        display: inline;
+      }
+      .label{
+        margin-right: 5px;
+      }
+      .number{
+        margin-right: 10px;
+      }
+     
     </style>
 
     <script src="lib/head.min.js"></script>
@@ -33,7 +45,7 @@
         "lib/coquette.min.js",
         "./src/constants.js",
         "./src/helpers.js",
-        "./src/hitEvent.js",
+        "./src/events.js",
         "./src/bullet.js",
         "./src/enemy.js",
         "./src/player.js",
@@ -48,7 +60,14 @@
   <body>
     <div id="container">
       <canvas id="canvas" width="800" height="600"></canvas>
-      <span id="score">0000</span>
+      <div id="scoreboard">
+        <div>
+          <span class="label">ROUND</span><span class="number" id="round">0000</span>
+          <span class="label">SCORE</span><span class="number" id="score">0000</span>
+          <span class="label">BULLETS</span><span class="number" id="bullets">0000</span>
+          <span class="label">ACCURACY</span><span class="number" id="accuracy">0.00%</span>
+      </div>
+      </div>
     </div>
   </body>
 </html>

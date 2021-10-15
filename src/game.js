@@ -3,14 +3,35 @@
     this.c = new Coquette(this, "canvas", WIDTH, HEIGHT, "#000");
 
     const scoreSpan = document.getElementById("score");
+    const bulletsSpan = document.getElementById("bullets");
+    const accuracySpan = document.getElementById("accuracy");
+    const roundSpan = document.getElementById("round")
 
     let score = 0;
-    let rounds = 1;
+    let bulletCount = 0;
+    let round = 1;
     let bombProb = 0.01;
 
-    hitEvent.addEventListener("hit", (e) => {
+    function updateAccuracy() {
+      const percent = bulletCount > 0 ? score / bulletCount * 100 : 0;
+      const percentString = `${percent.toFixed(2)}%`;
+      accuracySpan.innerHTML = percentString;
+    }
+
+    function updateRound(){
+      roundSpan.innerHTML = round.toString().padStart(4, "0");
+    }
+
+    events.addEventListener("hit", (e) => {
       score++;
       scoreSpan.innerHTML = score.toString().padStart(4, "0");
+      updateAccuracy();
+    });
+
+    events.addEventListener("bullet", () => {
+      bulletCount++;
+      bulletsSpan.innerHTML = bulletCount.toString().padStart(4, "0");
+      updateAccuracy();
     });
 
     this.gameOver = false;
@@ -33,6 +54,7 @@
     };
 
     this.createNewEnemyArray();
+    updateRound();
 
     let entities, player, enemyArray, bullets;
 
@@ -52,8 +74,10 @@
         bullets = this.c.entities.all(Bullet);
         bullets.forEach((b) => this.c.entities.destroy(b));
 
-        bombProb *= 1.2;
+        bombProb *= 1.2;        
         this.createNewEnemyArray();
+        round++;
+        updateRound();
       }
     };
   };
