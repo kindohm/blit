@@ -41,14 +41,14 @@
       const BULLET_SIZE = 4;
       const DIRECTIONS = { right: 0, left: 1 };
       const BASE_SPEED = 0.6;
+      const TOP_SPEED = 4;
       const Y_INC = 10;
-      const SPEED_MULT = 0.025;
+      // const ROUND_SPEED_MULT = 1.15;
       const MAX_ENEMY_SIZE = 20;
       const ENEMY_SIZE_RATIO = 0.5;
-
-      let x = false,
-        enemyRows = 5,
-        enemyCols = 6;
+      const ENEMY_ROWS = 6;
+      const ENEMY_COLS = 10;
+      const GROUPS = { ENEMY: 1, PLAYER: 2 };
 
       class HitEvent extends EventTarget {
         hit() {
@@ -58,12 +58,24 @@
 
       const hitEvent = new HitEvent();
 
+      function getRandomIntInclusive(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
+      }
+
+      function convertRange(value, r1, r2) {
+        return ((value - r1[0]) * (r2[1] - r2[0])) / (r1[1] - r1[0]) + r2[0];
+      }
+
       const Game = function () {
         this.c = new Coquette(this, "canvas", WIDTH, HEIGHT, "#000");
 
         const scoreSpan = document.getElementById("score");
 
         let score = 0;
+        let rounds = 1;
+        let bombProb = 0.01;
 
         hitEvent.addEventListener("hit", (e) => {
           score++;
@@ -78,13 +90,18 @@
           color: "#07f",
         });
 
-        // enemy array
-        let currentEnemyArray = this.c.entities.create(EnemyArray, {
-          color: "#07f",
-          rows: enemyRows,
-          cols: enemyCols,
-        });
+        this.createNewEnemyArray = function () {
+          this.c.entities.create(EnemyArray, {
+            color: "#07f",
+            rows: ENEMY_ROWS,
+            cols: ENEMY_COLS,
+            baseSpeed: BASE_SPEED,
+            topSpeed: TOP_SPEED,
+            bombProb,
+          });
+        };
 
+        this.createNewEnemyArray();
 
         let entities, player, enemyArray, bullets;
 
@@ -99,21 +116,13 @@
           }
 
           if (enemyArray.cleared) {
-            
             this.c.entities.destroy(enemyArray);
 
             bullets = this.c.entities.all(Bullet);
             bullets.forEach((b) => this.c.entities.destroy(b));
 
-            enemyRows++;
-            enemyCols++;
-
-            // enemy array
-            this.c.entities.create(EnemyArray, {
-              color: "#07f",
-              rows: enemyRows,
-              cols: enemyCols,
-            });
+            bombProb *= 1.2;
+            this.createNewEnemyArray();
           }
         };
       };
@@ -121,22 +130,39 @@
       const EnemyArray = function (game, settings) {
         this.c = game.c;
 
-        this.speed = BASE_SPEED;
         this.size = { x: WIDTH * 0.75, y: HEIGHT * 0.4 };
         this.center = { x: WIDTH / 2, y: 50 + this.size.y / 2 };
         this.direction = DIRECTIONS.right;
-        this.killed = 0;
 
         for (let i in settings) {
           this[i] = settings[i];
         }
 
+        this.speed = this.baseSpeed;
+
+        const that = this;
+        this.killed = 0;
+        this.totalEnemies = this.rows * this.cols;
+
+        function handleHit(target) {
+          target.killed++;
+
+          target.speed =
+            target.killed == target.totalEnemies - 1
+              ? TOP_SPEED * 1.2
+              : convertRange(
+                  target.killed,
+                  [0, target.totalEnemies],
+                  [target.baseSpeed, target.topSpeed]
+                );
+        }
+
+        hitEvent.addEventListener("hit", () => handleHit(that));
+
         const colSize = this.size.x / this.cols;
         const rowSize = this.size.y / this.rows;
         const sizeX = Math.min(colSize * 0.8, MAX_ENEMY_SIZE);
         const sizeY = Math.min(rowSize * 0.8, MAX_ENEMY_SIZE);
-
-        this.totalEnemies = this.rows * this.cols;
 
         for (let r = 0; r < this.rows; r++) {
           for (let c = 0; c < this.cols; c++) {
@@ -161,8 +187,7 @@
           leftEnemyEdge,
           bottomEnemyEdge,
           topEdge,
-          leftEdge,
-          killed;
+          leftEdge;
 
         this.update = function () {
           if (game.gameOver) {
@@ -170,8 +195,6 @@
           }
 
           enemies = this.c.entities.all(Enemy);
-
-          this.killed = this.totalEnemies - enemies.length;
 
           if (enemies.length === 0) {
             this.cleared = true;
@@ -208,9 +231,6 @@
             this.center.y += Y_INC;
           }
 
-          killed = this.totalEnemies - enemies.length;
-          this.speed = BASE_SPEED + killed * SPEED_MULT;
-
           this.center.x +=
             this.direction === DIRECTIONS.right ? this.speed : -this.speed;
 
@@ -218,15 +238,36 @@
             enemy.center.x = colSize * enemy.col + colSize / 2 + leftEdge;
             enemy.center.y = rowSize * enemy.row + rowSize / 2 + topEdge;
           });
+
+          if (Math.random() < this.bombProb) {
+            const index = getRandomIntInclusive(0, enemies.length - 1);
+            if (index <= enemies.length - 1) {
+              enemies[index].dropBomb();
+            }
+          }
         };
       };
 
       const Enemy = function (game, settings) {
         this.c = game.c;
+        this.group = GROUPS.ENEMY;
 
         for (let i in settings) {
           this[i] = settings[i];
         }
+
+        this.dropBomb = function () {
+          // spawn a bullet
+          this.c.entities.create(Bullet, {
+            center: {
+              x: this.center.x,
+              y: this.center.y + this.size.y / 2,
+            },
+            vector: { x: 0, y: 5 },
+            color: settings.color,
+            group: this.group,
+          });
+        };
 
         this.draw = function (ctx) {
           ctx.strokeStyle = settings.color;
@@ -239,7 +280,7 @@
         };
 
         this.collision = function (other) {
-          if (other instanceof Bullet) {
+          if (other.group !== this.group && other instanceof Bullet) {
             hitEvent.hit();
             this.c.entities.destroy(this);
             this.c.entities.destroy(other);
@@ -250,7 +291,6 @@
       const Bullet = function (game, settings) {
         this.c = game.c;
         this.size = { x: BULLET_SIZE, y: BULLET_SIZE };
-        this.vector = { x: 0, y: -10 };
 
         for (let i in settings) {
           this[i] = settings[i];
@@ -280,6 +320,7 @@
 
       const Player = function (game, settings) {
         this.c = game.c;
+        this.group = GROUPS.PLAYER;
         this.size = { x: PLAYER_SIZE, y: PLAYER_SIZE };
         this.bulletTicks = 0;
 
@@ -317,7 +358,9 @@
                 x: this.center.x,
                 y: this.center.y - this.size.y,
               },
+              vector: { x: 0, y: -10 },
               color: settings.color,
+              group: this.group,
             });
 
             this.bulletTicks = 0;
@@ -335,7 +378,7 @@
         };
 
         this.collision = function (other) {
-          if (other instanceof Enemy) {
+          if (other.group !== this.group) {
             this.dead = true;
           }
         };
