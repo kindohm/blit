@@ -9,6 +9,13 @@
       this[i] = settings[i];
     }
 
+    let that = this;
+    events.addEventListener("powerup", (e) => {
+      that.ticksPerBullet = Math.max(MIN_TICKS_PER_BULLET, that.ticksPerBullet - 1);
+      events.fireRate(that.ticksPerBullet);
+    });
+
+
     this.update = function () {
       if (game.gameOver) {
         return;
@@ -37,7 +44,7 @@
 
       if (
         this.c.inputter.isDown(this.c.inputter.SPACE) &&
-        this.bulletTicks > 3
+        this.bulletTicks > this.ticksPerBullet
       ) {
         // spawn a bullet
         this.c.entities.create(Bullet, {

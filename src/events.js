@@ -7,6 +7,14 @@
     bullet() {
       this.dispatchEvent(new Event("bullet"));
     }
+
+    powerup(){
+      this.dispatchEvent(new Event("powerup"));
+    }
+
+    fireRate(){
+      this.dispatchEvent(new Event("firerate"))
+    }
   }
 
   const events = new GameEvents();

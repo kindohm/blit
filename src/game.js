@@ -2,23 +2,27 @@
   const Game = function () {
     this.c = new Coquette(this, "canvas", WIDTH, HEIGHT, "#000");
 
+    const totalEnemies = ENEMY_COLS * ENEMY_ROWS;
     const scoreSpan = document.getElementById("score");
     const bulletsSpan = document.getElementById("bullets");
     const accuracySpan = document.getElementById("accuracy");
-    const roundSpan = document.getElementById("round")
+    const roundSpan = document.getElementById("round");
+    const fireRateSpan = document.getElementById("fireRate");
 
     let score = 0;
     let bulletCount = 0;
     let round = 1;
-    let bombProb = 0.01;
+    let bombProb = BASE_BOMB_PROB;
+    let canSpawnPowerup = true;
+    let that = this;
 
     function updateAccuracy() {
-      const percent = bulletCount > 0 ? score / bulletCount * 100 : 0;
+      const percent = bulletCount > 0 ? (score / bulletCount) * 100 : 0;
       const percentString = `${percent.toFixed(2)}%`;
       accuracySpan.innerHTML = percentString;
     }
 
-    function updateRound(){
+    function updateRound() {
       roundSpan.innerHTML = round.toString().padStart(4, "0");
     }
 
@@ -26,6 +30,7 @@
       score++;
       scoreSpan.innerHTML = score.toString().padStart(4, "0");
       updateAccuracy();
+      that.checkSpawnPowerup();
     });
 
     events.addEventListener("bullet", () => {
@@ -34,13 +39,39 @@
       updateAccuracy();
     });
 
+    events.addEventListener("firerate", () => {
+      const player = that.c.entities.all(Player)[0];
+      const current = MAX_TICKS_PER_BULLET - player.ticksPerBullet;
+      const percent = current / (MAX_TICKS_PER_BULLET - MIN_TICKS_PER_BULLET) * 100;
+      fireRateSpan.innerHTML = `${percent.toFixed(2)}%`;
+    })
+
     this.gameOver = false;
 
     // player
     this.c.entities.create(Player, {
       center: { x: WIDTH / 2, y: HEIGHT - 20 },
       color: "#07f",
+      ticksPerBullet: BASE_TICKS_PER_BULLET
     });
+
+    this.checkSpawnPowerup = function () {
+      if (!canSpawnPowerup) {
+        return;
+      }
+
+      const enemies = this.c.entities.all(Enemy);
+      if (enemies.length / totalEnemies > 0.5) {
+        return;
+      }
+
+      canSpawnPowerup = false;
+      this.c.entities.create(Powerup, {
+        spawnX: -10,
+        maxX: WIDTH + 10,
+        color: "#f70",
+      });
+    };
 
     this.createNewEnemyArray = function () {
       this.c.entities.create(EnemyArray, {
@@ -74,10 +105,11 @@
         bullets = this.c.entities.all(Bullet);
         bullets.forEach((b) => this.c.entities.destroy(b));
 
-        bombProb *= 1.2;        
+        bombProb *= BOMB_PROB_MULT;
         this.createNewEnemyArray();
         round++;
         updateRound();
+        canSpawnPowerup = true;
       }
     };
   };

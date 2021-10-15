@@ -3,8 +3,8 @@
     this.c = game.c;
     this.group = GROUPS.INVISIBLE;
     this.size = { x: WIDTH * 0.75, y: HEIGHT * 0.4 };
-    this.center = { x: WIDTH / 2, y: 10 + this.size.y / 2 };
-    this.direction = DIRECTIONS.right;
+    this.center = { x: WIDTH / 2, y: 70 + this.size.y / 2 };
+    this.direction = Math.random() > 0.5 ? DIRECTIONS.RIGHT : DIRECTIONS.LEFT;
 
     for (let i in settings) {
       this[i] = settings[i];
@@ -21,7 +21,7 @@
 
       target.speed =
         target.killed == target.totalEnemies - 1
-          ? TOP_SPEED * 1.2
+          ? TOP_SPEED * 1.5
           : convertRange(
               target.killed,
               [0, target.totalEnemies],
@@ -83,9 +83,6 @@
         a.center.y > b.center.y ? -1 : 1
       )[0];
 
-      rightEnemyEdge = rightMostEnemy.center.x + rightMostEnemy.size.x / 2; // this.center.x + this.size.x/2;
-      leftEnemyEdge = leftMostEnemy.center.x - leftMostEnemy.size.x / 2; // this.center.x - this.size.x/2;
-      bottomEnemyEdge = bottomMostEnemy.center.y + bottomMostEnemy.size.y / 2; // this.center.y + this.size.y / 2;
       topEdge = this.center.y - this.size.y / 2;
       leftEdge = this.center.x - this.size.x / 2;
 
@@ -94,16 +91,8 @@
         return;
       }
 
-      if (rightEnemyEdge >= WIDTH) {
-        this.direction = DIRECTIONS.left;
-        this.center.y += Y_INC;
-      } else if (leftEnemyEdge <= 0) {
-        this.direction = DIRECTIONS.right;
-        this.center.y += Y_INC;
-      }
-
       this.center.x +=
-        this.direction === DIRECTIONS.right ? this.speed : -this.speed;
+        this.direction === DIRECTIONS.RIGHT ? this.speed : -this.speed;
 
       enemies.forEach((enemy) => {
         enemy.center.x = colSize * enemy.col + colSize / 2 + leftEdge;
@@ -115,6 +104,18 @@
         if (index <= enemies.length - 1) {
           enemies[index].dropBomb();
         }
+      }
+
+      rightEnemyEdge = rightMostEnemy.center.x + rightMostEnemy.size.x / 2; // this.center.x + this.size.x/2;
+      leftEnemyEdge = leftMostEnemy.center.x - leftMostEnemy.size.x / 2; // this.center.x - this.size.x/2;
+      bottomEnemyEdge = bottomMostEnemy.center.y + bottomMostEnemy.size.y / 2; // this.center.y + this.size.y / 2;
+
+      if (rightEnemyEdge >= WIDTH) {
+        this.direction = DIRECTIONS.LEFT;
+        this.center.y += Y_INC;
+      } else if (leftEnemyEdge <= 0) {
+        this.direction = DIRECTIONS.RIGHT;
+        this.center.y += Y_INC;
       }
     };
   };
