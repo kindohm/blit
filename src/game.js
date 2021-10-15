@@ -73,15 +73,21 @@
       });
     };
 
+    let baseSpeed = BASE_SPEED;
+    let topSpeed = TOP_SPEED;
     this.createNewEnemyArray = function () {
+
       this.c.entities.create(EnemyArray, {
         color: "#07f",
         rows: ENEMY_ROWS,
         cols: ENEMY_COLS,
-        baseSpeed: BASE_SPEED,
-        topSpeed: TOP_SPEED,
+        baseSpeed,
+        topSpeed,
         bombProb,
       });
+
+      baseSpeed *= ROUND_SPEED_MULT;
+      topSpeed *= ROUND_SPEED_MULT;
     };
 
     this.createNewEnemyArray();

@@ -3,7 +3,7 @@
   exports.HEIGHT = 600;
   exports.PLAYER_MOVE_SPEED = 6;
   exports.PLAYER_SIZE = 15;
-  exports.POWERUP_SIZE = 25;
+  exports.POWERUP_SIZE = 17;
   exports.BULLET_SIZE = 4;
   exports.DIRECTIONS = { RIGHT: 'RIGHT', LEFT: 'LEFT' };
   exports.BASE_SPEED = 0.1;
@@ -17,7 +17,8 @@
   exports.BASE_TICKS_PER_BULLET = 22;
   exports.MIN_TICKS_PER_BULLET = 2;
   exports.MAX_TICKS_PER_BULLET = 42;
-  exports.BOMB_PROB_MULT = 1.1;
-  exports.BASE_BOMB_PROB = 0.007;
+  exports.BOMB_PROB_MULT = 1.2;
+  exports.BASE_BOMB_PROB = 0.01;
+  exports.ROUND_SPEED_MULT = 1.01;
 
 })(this);
