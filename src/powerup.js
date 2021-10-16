@@ -12,7 +12,7 @@
     this.vector = { x: backwards ? -2 : 2, y: 0 };
 
     this.update = function () {
-      if (game.gameOver) {
+      if (game.gameOver()) {
         return;
       }
 

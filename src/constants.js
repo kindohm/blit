@@ -20,5 +20,6 @@
   exports.BOMB_PROB_MULT = 1.2;
   exports.BASE_BOMB_PROB = 0.01;
   exports.ROUND_SPEED_MULT = 1.01;
+  exports.GAME_STATES = { WAITING: 'WAITING', PLAYING: 'PLAYING', GAME_OVER: 'GAME_OVER'}
 
 })(this);

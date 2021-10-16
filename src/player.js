@@ -17,7 +17,7 @@
 
 
     this.update = function () {
-      if (game.gameOver) {
+      if (game.gameOver()) {
         return;
       }
 
